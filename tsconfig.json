@@ -1,0 +1,42 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "target": "es2017",
+        "module": "CommonJS",
+        "lib": [
+            "esnext"
+        ],
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "resolveJsonModule": true,
+        "skipDefaultLibCheck": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "outDir": "./dist",
+        "strictPropertyInitialization": false,
+        "allowSyntheticDefaultImports": true,
+        "allowUnreachableCode": false,
+        "noImplicitOverride": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "paths": {
+            "~/*": [
+                "./src/*"
+            ],
+            "~~/*": [
+                "./*"
+            ]
+        },
+        "typeRoots": [
+            "./node_modules/@types"
+        ]
+    },
+    "ts-node": {
+        "require": [
+            "tsconfig-paths/register"
+        ]
+    }
+}
