@@ -1,0 +1,12 @@
+@mixin centerAbsolute($position: absolute, $top: 50%, $left: 50%) {
+    position: $position;
+    top: $top;
+    left: $left;
+}
+
+@mixin flex($display: flex, $direction: row, $wrap: nowrap, $justify-content: center, $align-items: center) {
+    display: $display;
+    flex-flow: $direction $wrap;
+    justify-content: $justify-content;
+    align-items: $align-items;
+}
