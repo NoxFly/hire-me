@@ -1,6 +1,8 @@
-const $title = document.getElementById('app-slogan');
+import { random } from "./utils.mjs";
 
-const random = (iMin=null, iMax = 0) => iMin===null? Math.random() : Math.floor(Math.random() * (Math.max(iMin, iMax) - Math.min(iMin, iMax) + 1)) + Math.min(iMin, iMax);
+// animated typing on home page
+
+const $title = document.getElementById('app-slogan');
 
 function keyBoardWriteAnim($el, text, speedMin=70, speedMax=20) {
     let isLastCharSpace = false;

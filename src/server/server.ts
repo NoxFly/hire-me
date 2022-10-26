@@ -46,13 +46,13 @@ app.set('view engine', 'ejs');
 app.use('/', router);
 
 
-export function start() {
+function start() {
     server.listen(port, () => {
         console.info('Listening on http://localhost:' + port);
     });
 }
 
-export function stop() {
+function stop() {
     server.close();
 }
 

@@ -1,3 +1,4 @@
+// adapt the footer depending to the page height
 const $footer = document.getElementById('main-footer');
 const $header = document.getElementById('main-header');
 const $main = document.querySelector('main');

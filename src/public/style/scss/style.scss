@@ -13,7 +13,7 @@ header {
     nav {
         @include flex($justify-content: flex-start);
 
-        height: 70px;
+        height: var(--nav-height);
         padding: 50px var(--page-inline-padding);
 
         #nav-app-title {
@@ -92,6 +92,10 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Bebas Neue';
     user-select: none;
     margin-inline: var(--page-inline-padding);
+
+    &.primary {
+        color: var(--primary-color);
+    }
 }
 
 h1 {
@@ -126,45 +130,47 @@ a {
     color: var(--primary-color);
     text-decoration: none;
     cursor: pointer;
-}
 
-a.button-fill {
-    background: 0 0/400% 100%  linear-gradient(90deg, var(--primary-color), var(--primary-color-tint)) no-repeat;
-    color: var(--primary-color-contrast);
-    border-radius: 3em;
-    display: inline-block;
-    padding: 15px 25px;
-    transition-duration: .2s;
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        background: transparent;
+    &.button-fill {
+        background: 0 0/400% 100%  linear-gradient(90deg, var(--primary-color), var(--primary-color-tint)) no-repeat;
+        color: var(--primary-color-contrast);
+        border-radius: 3em;
+        display: inline-block;
+        padding: 15px 25px;
         transition-duration: .2s;
-        width: 0;
-        height: 0;
-        z-index: 2;
-        transform: translate(-50%, -50%);
-    }
-
-    &:hover {
-        box-shadow: 3px 3px 10px rgba(0, 0, 0, .2);
-        background-size: 100% 100%;
+        position: relative;
+        overflow: hidden;
 
         &::before {
-            //background: rgba(200, 200, 200, .1);
-            width: 100%;
-            height: 100%;
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            background: transparent;
+            transition-duration: .2s;
+            width: 0;
+            height: 0;
+            z-index: 2;
+            transform: translate(-50%, -50%);
+        }
+
+        &:hover {
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, .2);
+            background-size: 100% 100%;
+
+            &::before {
+                //background: rgba(200, 200, 200, .1);
+                width: 100%;
+                height: 100%;
+            }
         }
     }
 }
 
-h1.primary, h2.primary, h3.primary, h4.primary, h5.primary, h6.primary {
-    color: var(--primary-color);
+ul, ol {
+    li {
+        margin: 15px 0;
+    }
 }
 
 hr {
@@ -182,9 +188,36 @@ hr {
 }
 
 
-.page-home {
+
+
+
+
+
+.page-general-home {
     section {
-        @include flex;
+        @include flex($align-items: flex-start);
+
+        height: calc(100vh - var(--nav-height));
+
+        &:nth-child(even) {
+            align-items: center;
+            background: var(--primary-color);
+            color: var(--primary-color-contrast);
+            box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.2);
+            height: 50vh;
+
+            a {
+                color: var(--primary-color-contrast);
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        &:nth-child(odd) {
+            margin-top: 70px;
+        }
 
         article {
             width: 50%;
@@ -210,7 +243,13 @@ hr {
     }
 }
 
-.page-video {
+
+
+
+
+
+
+.page-dev-video {
     @include flex;
 
     article[class^=webcam] {

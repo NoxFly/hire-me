@@ -17,7 +17,7 @@
     <body>
         <%- include('components/header.ejs'); %>
 
-        <main class="page-<%=page.replace(/\s+/g, '-')%>">
+        <main class="page-<%=page.replace(/[\s\/]+/g, '-')%>">
             <%- include(`pages/${page}.ejs`); %>
         </main>
 
