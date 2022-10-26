@@ -12,22 +12,15 @@ import {canvas} from "../dev/common/env";
 import { Socket } from 'socket.io';
 import server, { io } from '../server';
 
-import {run} from "../dev/common";
-import {base64Img} from '../dev/assets/images/base64_test';
-//commons
-import {saveFile} from "../dev/common/saveFile";
-import {faceDetectionNet, faceDetectionOptions} from "../dev/common/faceDetection";
+import {processFrame} from "../dev/common";
 
 //retrieve webcam frame from frontend
 io.on("connection", (socket: Socket) => {
-    socket.on("uploadWebcamStream", (data: { stream: String }) => {//base64
-      
-        const treatedImage = data.stream; // TODO : treat image with tenserflow
-    
-        //socket.emit('webcamStreamTreated', treatedImage);
+    socket.on("uploadWebcamStream", (data: { stream: String }) => {
+        //socket.emit('webcamStreamTreated', processFrame(data.stream));// TODO : treat image with tenserflow
     });
 });
 
 
   
-console.log(run("base64image"));
+console.log(processFrame("base64image"));//this should go in the socket callback eventully
