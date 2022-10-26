@@ -19,6 +19,7 @@
 		"cors": "^2.8.5",
 		"dotenv": "^16.0.3",
 		"ejs": "^3.1.8",
+		"enmap": "^5.9.2",
 		"express": "^4.18.1",
 		"socket.io": "^4.5.2",
 		"socket.io-client": "^4.5.3"

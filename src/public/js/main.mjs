@@ -8,3 +8,9 @@ if($footer && $header && $main) {
         $footer.classList.add('absolute-footer');
     }
 }
+
+// authenticate the client on page load
+socket.on('authenticate', ({ token, tokenKey, cookieMaxAge }) => {
+    console.log('token : ', token);
+    document.cookie = `${tokenKey}=${token}; max-age=${cookieMaxAge}; sameSite=lax; path=/`;
+});
