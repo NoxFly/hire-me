@@ -69,9 +69,9 @@ header {
 }
 
 footer {
-    @include flex;
+    @include flex($direction: column);
 
-    height: 100px;
+    height: 200px;
     background: var(--background-color-tint);
 
     .copyrights {
@@ -85,6 +85,23 @@ footer {
         bottom: 0;
         left: 0;
         right: 0;
+    }
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+
+        li {
+            a {
+                color: var(--color-soft);
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
     }
 }
 
@@ -198,6 +215,7 @@ hr {
         @include flex($align-items: flex-start);
 
         height: calc(100vh - var(--nav-height));
+        isolation: isolate;
 
         &:nth-child(even) {
             align-items: center;
@@ -224,6 +242,22 @@ hr {
 
             &:last-child {
                 text-align: center;
+            }
+
+            &#app-slogan-article {
+                width: calc(100% - var(--page-inline-padding));
+                
+                #mobile-go-to-history {
+                    display: none;
+                }
+            }
+
+            &#home-illustration {
+                position: absolute;
+                top: 50%;
+                right: var(--page-inline-padding);
+                transform: translateY(-50%);
+                z-index: -1;
             }
 
             a {
@@ -272,6 +306,53 @@ hr {
             left: -1px;
             width: calc(100% + 2px);
             height: calc(100% + 2px);
+        }
+    }
+}
+
+
+
+@media screen and (max-width: 1000px) {
+    header {
+        nav {
+            ul {
+                justify-content: center;
+
+                li {
+                    &:not(.useful) {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .page-general-home {
+        section {
+            article {
+                &#app-slogan-article {
+                    #mobile-go-to-history {
+                        display: block;
+                        text-align: center;
+                        margin-top: 150px;
+                    }
+                }
+
+                &#home-illustration {
+                    top: 40%;
+                    right: 0;
+                    transform: scale(.7);
+                }
+            }
+        }
+    }
+
+    .page-dev-video {
+        flex-direction: column;
+        padding-bottom: 50px;
+
+        article[class^=webcam] {
+            margin: 10px 0;
         }
     }
 }
