@@ -54,7 +54,7 @@ socket.on('webcamStreamTreated', data => {
 
 /**
  * Asks the navigator to get the user's webcam.
- * Throwns an error if not available or refused.
+ * Throws an error if not available or refused.
  * Async function : returns a promise which needs an 'await' when called.
  * @param {MediaStreamConstraints} constraints 
  * @returns {Promise<MediaStream>}

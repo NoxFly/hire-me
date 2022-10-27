@@ -30,5 +30,7 @@ export async function processFrame(baseImg: string) {
     faceapi.draw.drawDetections(out, results.map(res => res.detection))
     faceapi.draw.drawFaceExpressions(out, results)
     
+    saveFile('faceLandmarkDetection.jpg', out.toBuffer('image/jpeg'))
+
     return out.toDataURL();
   }

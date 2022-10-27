@@ -1,14 +1,5 @@
 // TODO : Amika & Farouk
 
-// import nodejs bindings to native tensorflow,
-// not required, but will speed up things drastically (python required)
-//import '@tensorflow/tfjs-node';
-
-// implements nodejs wrappers for HTMLCanvasElement, HTMLImageElement, ImageData
-// import * as canvas from 'canvas';
-import * as faceapi from 'face-api.js';
-import {canvas} from "../dev/common/env";
-
 import { Socket } from 'socket.io';
 import server, { io } from '../server';
 
@@ -22,5 +13,6 @@ io.on("connection", (socket: Socket) => {
 });
 
 
-  
-console.log(processFrame("base64image"));//this should go in the socket callback eventully
+(async () => {
+    console.log(await processFrame("base64image"))
+})();

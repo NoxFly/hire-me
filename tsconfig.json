@@ -4,7 +4,8 @@
         "target": "es2017",
         "module": "CommonJS",
         "lib": [
-            "esnext"
+            "esnext",
+            "DOM"
         ],
         "moduleResolution": "node",
         "esModuleInterop": true,
@@ -12,6 +13,7 @@
         "strictNullChecks": true,
         "resolveJsonModule": true,
         "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "outDir": "./dist",
