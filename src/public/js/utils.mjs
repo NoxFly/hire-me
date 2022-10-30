@@ -7,6 +7,6 @@
  * @param {Number} iMax The right-bound number. If iMin < iMax, it will be handled (swapped)
  * @returns The randomly generated integer between [iMin, iMax]
  */
-export const random = (iMin=null, iMax = 0) => iMin === null
-    ? Math.random()
-    : Math.floor(Math.random() * (Math.max(iMin, iMax) - Math.min(iMin, iMax) + 1)) + Math.min(iMin, iMax);
+export const random = (iMin = null, iMax = 0) => iMin === null
+	? Math.random()
+	: Math.floor(Math.random() * (Math.max(iMin, iMax) - Math.min(iMin, iMax) + 1)) + Math.min(iMin, iMax);

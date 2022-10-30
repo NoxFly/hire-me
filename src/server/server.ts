@@ -1,61 +1,57 @@
 import express from 'express';
 import http from 'http';
-import socketIo from 'socket.io';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { router } from './routes/router';
 
 
-dotenv.config();
+export let server: http.Server;
+
+let app: any;
 
 
-const port = process.env.SERVER_PORT;
+function load() {
+	app = express();
+
+	server = http.createServer(app);
 
 
-// express
-export const app = express();
-
-
-// server
-const server = http.createServer(app);
-
-
-// socket.io
-export const io = new socketIo.Server(server);
-
-
-app.set('port', port);
-app.set('case sensitive routing', true);
+	// express config
+	app.set('port', process.env.SERVER_PORT);
+	app.set('case sensitive routing', true);
 
 
 
-app.use(cors());
-app.use(cookieParser());
-app.use(express.json());
+	app.use(cors());
+	app.use(cookieParser());
+	app.use(express.json());
 
-app.use('/public', express.static('src/public'));
+	app.use('/public', express.static('src/public'));
+	app.use('/io', express.static('node_modules/socket.io-client/dist'));
 
-// views
-app.set('views', 'src/public/views');
-app.set('view engine', 'ejs');
+	// views
+	app.set('views', 'src/public/views');
+	app.set('view engine', 'ejs');
 
 
 
-// routing
-app.use('/', router);
+	// routing
+	app.use('/', router);
+}
+
+
 
 
 function start() {
-    server.listen(port, () => {
-        console.info('Listening on http://localhost:' + port);
-    });
+	server.listen(process.env.SERVER_PORT, () => {
+		console.info(`Listening on ${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`);
+	});
 }
 
 function stop() {
-    server.close();
+	server.close();
 }
 
 export default {
-    start, stop
+	load, start, stop
 };

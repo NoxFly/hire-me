@@ -1,3 +1,3 @@
-import * as TSF from "@tensorflow/tfjs-node";
+import * as TSF from '@tensorflow/tfjs-node';
 
 // TODO : Amika & Farouk

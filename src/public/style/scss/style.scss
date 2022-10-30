@@ -10,11 +10,14 @@ body {
 }
 
 header {
+    padding: var(--nav-padding-vertical) var(--page-inline-padding);
+    box-sizing: border-box;
+
     nav {
         @include flex($justify-content: flex-start);
 
         height: var(--nav-height);
-        padding: 50px var(--page-inline-padding);
+        box-sizing: border-box;
 
         #nav-app-title {
             display: inline-block;
@@ -109,6 +112,7 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'Bebas Neue';
     user-select: none;
     margin-inline: var(--page-inline-padding);
+    text-align: center;
 
     &.primary {
         color: var(--primary-color);
@@ -195,6 +199,26 @@ hr {
     width: 70%;
 }
 
+button {
+    cursor: pointer;
+    padding: 6px 15px;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    background: none;
+    border-radius: 2em;
+    transition-duration: .1s;
+
+    &:disabled {
+        filter: grayscale(1);
+        cursor: default;
+    }
+
+    &:not(:disabled):hover {
+        background: var(--primary-color);
+        color: var(--primary-color-contrast);
+    }
+}
+
 .box {
     background: var(--background-color-tint);
     border-radius: 10px;
@@ -205,7 +229,36 @@ hr {
 }
 
 
+.loader {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    isolation: isolate;
 
+    &::before {
+        content: '';
+        z-index: -1;
+        border-radius: 100%;
+        width: 50%;
+        height: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        animation: rotate 1s infinite linear;
+        border: 4px solid var(--primary-color);
+        border-left-color: transparent;
+    }
+}
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.center {
+    text-align: center;
+}
 
 
 
@@ -214,15 +267,16 @@ hr {
     section {
         @include flex($align-items: flex-start);
 
-        height: calc(100vh - var(--nav-height));
+        min-height: calc(100vh - var(--nav-height) - var(--nav-padding-vertical));
         isolation: isolate;
+        box-sizing: border-box;
 
         &:nth-child(even) {
             align-items: center;
             background: var(--primary-color);
             color: var(--primary-color-contrast);
             box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.2);
-            height: 50vh;
+            min-height: 50vh;
 
             a {
                 color: var(--primary-color-contrast);
@@ -234,7 +288,7 @@ hr {
         }
 
         &:nth-child(odd) {
-            margin-top: 70px;
+            padding-top: 70px;
         }
 
         article {
@@ -246,6 +300,10 @@ hr {
 
             &#app-slogan-article {
                 width: calc(100% - var(--page-inline-padding));
+
+                h1, h4 {
+                    text-align: left;
+                }
                 
                 #mobile-go-to-history {
                     display: none;
@@ -311,8 +369,122 @@ hr {
 }
 
 
+.page-interview-create {
+    #lobby-url {
+        @include flex;
+        
+        span {
+            background:rgba(0, 0, 0, .05);
+            border-radius: 3px;
+            border: 1px solid rgba(0, 0, 0, .05);
+            display: inline-block;
+            margin: 0 5px;
+            padding: 2px 5px;
+            color: var(--color-soft);
+            font-size: .8em;
+            max-width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        button {
+            width: 77px;
+            
+            &.copied {
+                --copied-color: rgb(112, 189, 112);
+                
+                border-color: var(--copied-color);
+                color: var(--copied-color);
+
+                &:hover {
+                    background: var(--copied-color);
+                    color: #fff;
+                }
+            }
+        }
+    }
+
+    #launch-interview {
+        font-size: 1.2em;
+        display: block;
+        width: 150px;
+        margin: 20px auto;
+    }
+
+    .loader {
+        margin: 0 auto;
+        display: block;
+    }
+}
+
+.page-interview-room {
+    #room-not-started {
+        .loader {
+            margin: 0 auto;
+        }
+    }
+}
+
+.page-interview-lobby {
+    #lobbies-research-container {
+        form {
+            @include flex($direction: column);
+
+            input {
+                margin: 40px auto;
+                background: #fff;
+                border: 1px solid #fff;
+                border-radius: 4px;
+                width: 500px;
+                max-width: 98%;
+                padding: 8px 12px;
+                box-sizing: border-box;
+                transition-duration: .2s;
+
+                &::placeholder {
+                    opacity: .2;
+                }
+
+                &.fail {
+                    border-color: #d33;
+                }
+            }
+            
+            button {
+                width: 300px;
+                max-width: 98%;
+            }
+        }
+    }
+}
+
 
 @media screen and (max-width: 1000px) {
+    h1 {
+        font-size: 3em;
+    }
+
+    h2 {
+        font-size: 2.5em;
+    }
+
+    h3 {
+        font-size: 2.3em;
+    }
+
+    h4 {
+        font-size: 2em;
+    }
+
+    h5 {
+        font-size: 1.5em;
+    }
+
+    h6 {
+        font-size: 1.2em;
+    }
+
     header {
         nav {
             ul {
@@ -333,8 +505,8 @@ hr {
                 &#app-slogan-article {
                     #mobile-go-to-history {
                         display: block;
-                        text-align: center;
                         margin-top: 150px;
+                        margin-bottom: 20px;
                     }
                 }
 
