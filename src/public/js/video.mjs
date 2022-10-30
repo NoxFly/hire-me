@@ -31,7 +31,7 @@ $canvas.style.height = $canvas.height;
 // frame rating of how much data is sent to the server
 // [10,30] recommended during development
 // 50 recommended for release
-let fps = 10;
+let fps = 24;
 
 
 
@@ -42,7 +42,8 @@ let fps = 10;
 // tells the socket to listen the 'webcamStreamTreated' event from the server
 // the callbacks handles a data (here a string, the base64 treated image)
 socket.on('webcamStreamTreated', data => {
-    $canvasImg.src = `data:image/jpeg;base64,${data}`;
+    console.log(data)
+    $canvasImg.src = `${data}`;
 });
 
 
@@ -78,8 +79,8 @@ function processImage(webcam) {
 
     // repeat
     setInterval(async () => {
-        const data = takepicture().slice('data:image/png;base64,'.length+1);
-        socket.emit('uploadWebcamStream', { stream: data });
+        //const data = takepicture().slice('data:image/png;base64,'.length+1);
+        socket.emit('uploadWebcamStream', { stream: takepicture() });
     }, 1000 / fps);
 }
 

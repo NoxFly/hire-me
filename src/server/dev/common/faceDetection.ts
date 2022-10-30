@@ -1,13 +1,13 @@
 import * as faceapi from 'face-api.js';
 
 //export const faceDetectionNet = faceapi.nets.ssdMobilenetv1
-export const faceDetectionNet = faceapi.nets.tinyFaceDetector
+export const faceDetectionNet = faceapi.nets.mtcnn;
 // tinyFaceDetector
 // SsdMobilenetv1Options
 const minConfidence = 0.5
 
 // TinyFaceDetectorOptions
-const inputSize = 128
+const inputSize = 160
 const scoreThreshold = 0.5
 
 function getFaceDetectorOptions(net: faceapi.NeuralNetwork<any>) {
@@ -17,3 +17,4 @@ function getFaceDetectorOptions(net: faceapi.NeuralNetwork<any>) {
 }
 
 export const faceDetectionOptions = getFaceDetectorOptions(faceDetectionNet)
+// export const faceDetectionOptions = new faceapi.mtcnn({})

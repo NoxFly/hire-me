@@ -11,15 +11,16 @@ import {base64Img} from "../assets/images/base64_test"//this is tmp and should b
 //@warning replace this absolute path accordingly
 const weightsPath = "/home/spacecowboy/Desktop/codes/projet_ihm/src/server/dev/assets/weights";
 
+(async () => {
+  await faceDetectionNet.loadFromDisk(weightsPath)
+  await faceapi.nets.faceLandmark68Net.loadFromDisk(weightsPath)
+  await faceapi.nets.faceExpressionNet.loadFromDisk(weightsPath)
+})();
 //image processing
 export async function processFrame(baseImg: string) {
 
-    await faceDetectionNet.loadFromDisk(weightsPath)
-    await faceapi.nets.faceLandmark68Net.loadFromDisk(weightsPath)
-    await faceapi.nets.faceExpressionNet.loadFromDisk(weightsPath)
-  
     //base64Img should be replaced with baseImg
-    const img = await canvas.loadImage(base64Img);
+    const img = await canvas.loadImage(baseImg);
 
     const results = await faceapi.detectAllFaces(img as any, faceDetectionOptions)
     .withFaceLandmarks()
@@ -30,7 +31,7 @@ export async function processFrame(baseImg: string) {
     faceapi.draw.drawDetections(out, results.map(res => res.detection))
     faceapi.draw.drawFaceExpressions(out, results)
     
-    saveFile('faceLandmarkDetection.jpg', out.toBuffer('image/jpeg'))
+    //saveFile('faceLandmarkDetection.jpg', out.toBuffer('image/jpeg'))
 
     return out.toDataURL();
   }
