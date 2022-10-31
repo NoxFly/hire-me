@@ -1,10 +1,8 @@
 import * as faceapi from 'face-api.js';
+import '@tensorflow/tfjs-backend-webgl';
 
 import { canvas } from './env';
 import { faceDetectionNet, faceDetectionOptions } from './faceDetection';
-import { saveFile } from './saveFile';
-
-import {base64Img} from "../assets/images/base64_test"//this is tmp and should be replaced with value retrieved from socket
 
 
 //algorithm weights
@@ -19,19 +17,33 @@ const weightsPath = "/home/spacecowboy/Desktop/codes/projet_ihm/src/server/dev/a
 //image processing
 export async function processFrame(baseImg: string) {
 
-    //base64Img should be replaced with baseImg
-    const img = await canvas.loadImage(baseImg);
+      const img = await canvas.loadImage(baseImg);
 
-    const results = await faceapi.detectAllFaces(img as any, faceDetectionOptions)
-    .withFaceLandmarks()
-      .withFaceExpressions()
+      const results = await faceapi.detectSingleFace(img as any, faceDetectionOptions)
+      .withFaceLandmarks()
+        .withFaceExpressions()
   
-    //this part draws the effects on top of our input frame
-    const out = faceapi.createCanvasFromMedia(img as any) as any
-    faceapi.draw.drawDetections(out, results.map(res => res.detection))
-    faceapi.draw.drawFaceExpressions(out, results)
-    
-    //saveFile('faceLandmarkDetection.jpg', out.toBuffer('image/jpeg'))
+      if(results){//undefined if no facelandmarks detected
 
-    return out.toDataURL();
+        const emotionsObj = results.expressions;
+        const dominantEmotion = Object.keys(emotionsObj).find( (i) => emotionsObj[i as keyof typeof emotionsObj] === Math.max( ...Object.values(emotionsObj) ) );
+        const dominantEmotionPerc = emotionsObj[dominantEmotion as keyof typeof emotionsObj];
+        const timestamp: number = Date.now();
+        
+        const obj= {
+          [timestamp] : {
+            dominantEmotion,
+            dominantEmotionPerc
+          } 
+        }
+
+        // {
+        //   '1667207597822': {
+        //     dominantEmotion: 'neutral',
+        //     dominantEmotionPerc: 0.8099568486213684
+        //   }
+        // }
+        return obj;
+
+      }
   }

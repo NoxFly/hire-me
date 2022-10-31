@@ -1,5 +1,7 @@
 import { Socket } from 'socket.io';
 import server, { io } from './server';
+
+import "./interview/webcam"
 //import * as ts from '@tensorflow/tfjs-node';
 
 server.start();

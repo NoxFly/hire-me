@@ -42,8 +42,8 @@ let fps = 24;
 // tells the socket to listen the 'webcamStreamTreated' event from the server
 // the callbacks handles a data (here a string, the base64 treated image)
 socket.on('webcamStreamTreated', data => {
-    console.log(data)
-    $canvasImg.src = `${data}`;
+    //no needed as we are not retrieving the proccesed image
+   // $canvasImg.src = `${data}`;
 });
 
 
@@ -77,11 +77,10 @@ function processImage(webcam) {
     $webcam.srcObject = webcam;
     $webcam.play();
 
-    // repeat
-    setInterval(async () => {
-        //const data = takepicture().slice('data:image/png;base64,'.length+1);
+    // clear interval when interview ends 
+    const intervalJob = setInterval( () => {
         socket.emit('uploadWebcamStream', { stream: takepicture() });
-    }, 1000 / fps);
+    }, 1000);
 }
 
 /**
