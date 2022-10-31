@@ -6,3 +6,27 @@
 <!-- /interview/room/:id -->
 <!-- Where :id is a randomly UUIDv4 generated from the server -->
 <!-- TODO : ML_44_i & Putra -->
+
+<% if(!lobby.started) { %>
+
+<section id="room-not-started" class="center">
+	<% if(role === 'recruiter') { %>
+	<p>You have to launch the interview <a href="/interview/create">here</a></p>
+	<% } else { %>
+	<p>Wait until the recruiter starts the session</p>
+	<div class="loader"></div>
+	<% } %>
+</section>
+
+
+
+
+<% } else { %>
+
+<section id="room">
+	<p>The interview has started</p>
+</section>
+
+<% } %>
+
+<script src="/public/js/room.mjs" type="module"></script>

@@ -9,3 +9,26 @@
 <!-- Going on, you enter the quizz -->
 
 <!-- TODO : ML_44_i & Putra -->
+
+<% if(lobby != null) { %>
+
+<p
+	id="lobby-message"
+	class="center"
+	data-fail="Waiting for a participant to join..."
+	data-success="A candidate is present !"
+	data-state="<%=!!lobby.applicant%>"></p>
+<p id="lobby-url" class="center">
+	<span><%=lobbyUrl%></span>
+	<button>copy</button>
+</p>
+<div class="loader"></div>
+<button id="launch-interview" disabled>Launch</button>
+
+<script src="/public/js/create.mjs" type="module"></script>
+
+<% } else { %>
+
+<p class="center">You cannot create a lobby for now, either because you're an applicant that joined a room, either because you're a recruiter that is already in a room.</p>
+
+<% } %>
