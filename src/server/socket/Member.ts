@@ -183,7 +183,13 @@ export class Member {
 	quitLobby(): void {
 		if(this.lobbyId && this.role !== 'none') {
 			try {
-				lobbies.delete(this.lobbyId, (this.role === 'recruiter')? undefined : this.role);
+				// ensure it still exists
+				// for example, in case the recruiter left first
+				// then the lobby is destroyed : if the applicant then left
+				// it cannot delete what is already deleted.
+				if(lobbies.has(this.lobbyId)) {
+					lobbies.delete(this.lobbyId, (this.role === 'recruiter')? undefined : this.role);
+				}
 
 				this.socket.to(this.lobbyId).emit('memberQuit', { role: this.role });
 
