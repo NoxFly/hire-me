@@ -1,6 +1,6 @@
 /* ================ CONFIGURATION ================ */
 
-import { socket } from './main.mjs';
+import { socket } from './socket.mjs';
 
 const cameraConstraints = {
 	audio: false,
@@ -33,7 +33,7 @@ $canvas.style.height = $canvas.height;
 // frame rating of how much data is sent to the server
 // [10,30] recommended during development
 // 50 recommended for release
-let fps = 10;
+let fps = 1;
 
 
 
@@ -44,7 +44,8 @@ let fps = 10;
 // tells the socket to listen the 'webcamStreamTreated' event from the server
 // the callbacks handles a data (here a string, the base64 treated image)
 socket.on('webcamStreamTreated', data => {
-	$canvasImg.src = `data:image/jpeg;base64,${data}`;
+	//no needed as we are not retrieving the proccesed image
+	// $canvasImg.src = `${data}`;
 });
 
 
@@ -56,7 +57,7 @@ socket.on('webcamStreamTreated', data => {
 
 /**
  * Asks the navigator to get the user's webcam.
- * Throwns an error if not available or refused.
+ * Throws an error if not available or refused.
  * Async function : returns a promise which needs an 'await' when called.
  * @param {MediaStreamConstraints} constraints 
  * @returns {Promise<MediaStream>}
@@ -78,10 +79,9 @@ function processImage(webcam) {
 	$webcam.srcObject = webcam;
 	$webcam.play();
 
-	// repeat
-	setInterval(async () => {
-		const data = takepicture().slice('data:image/png;base64,'.length + 1);
-		socket.emit('uploadWebcamStream', { stream: data });
+	// clear interval when interview ends 
+	setInterval(() => {
+		socket.emit('uploadWebcamStream', { stream: takepicture() });
 	}, 1000 / fps);
 }
 
