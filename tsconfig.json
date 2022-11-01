@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
         "baseUrl": ".",
+        "rootDir": "./src",
         "target": "es2017",
         "module": "CommonJS",
         "lib": [
@@ -25,12 +26,13 @@
         "noImplicitAny": true,
         "noUnusedLocals": false,
         "noUnusedParameters": false,
+        "removeComments": true,
         "paths": {
             "~/*": [
-                "./src/*"
+                "src/*"
             ],
             "~~/*": [
-                "./*"
+                "*"
             ]
         },
         "typeRoots": [
@@ -43,6 +45,10 @@
         ]
     },
     "include": [
-        "./src/server/**/*"
+        "./src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
     ]
 }
