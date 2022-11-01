@@ -1,6 +1,6 @@
 /* ================ CONFIGURATION ================ */
 
-import { socket } from './main.mjs';
+import { socket } from './socket.mjs';
 
 const cameraConstraints = {
 	audio: false,
