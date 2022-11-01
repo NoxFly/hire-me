@@ -9,7 +9,8 @@ import * as canvas from 'canvas';
 
 // patch nodejs environment, we need to provide an implementation of
 // HTMLCanvasElement and HTMLImageElement
-const { Canvas, Image, ImageData } = canvas
-faceapi.env.monkeyPatch({ Canvas, Image, ImageData } as any)
+const { Canvas, Image, ImageData } = canvas;
 
-export { canvas }
+faceapi.env.monkeyPatch({ Canvas, Image, ImageData } as any);
+
+export { canvas };

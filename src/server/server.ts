@@ -47,15 +47,15 @@ app.use('/', router);
 
 
 function start() {
-    server.listen(port, () => {
-        console.info('Listening on http://localhost:' + port);
-    });
+	server.listen(port, () => {
+		console.info('Listening on http://localhost:' + port);
+	});
 }
 
 function stop() {
-    server.close();
+	server.close();
 }
 
 export default {
-    start, stop
+	start, stop
 };

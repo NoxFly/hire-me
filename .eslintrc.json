@@ -17,6 +17,7 @@
     "plugins": [
         "@typescript-eslint"
     ],
+    "ignorePatterns": ["*.js", "./src/public/js/**"],
     "rules": {
         "arrow-spacing": "error",
         "camelcase": "error",

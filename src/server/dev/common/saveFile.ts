@@ -1,12 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-//@warning replace this absolute path accordingly
-const baseDir = "/home/spacecowboy/Desktop/codes/projet_ihm/src/server/dev/out"
-export function saveFile(fileName: string, buf: Buffer) {
-  if (!fs.existsSync(baseDir)) {
-    fs.mkdirSync(baseDir)
-  }
+const baseDir = '/dev/out';
 
-  fs.writeFileSync(path.resolve(baseDir, fileName), buf)
+export function saveFile(fileName: string, buf: Buffer) {
+	const filepath = process.env.BASEPATH + baseDir;
+
+	if (!fs.existsSync(filepath)) {
+		fs.mkdirSync(filepath);
+	}
+
+	fs.writeFileSync(path.resolve(filepath, fileName), buf);
 }
