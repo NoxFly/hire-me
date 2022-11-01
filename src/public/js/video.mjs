@@ -1,12 +1,14 @@
 /* ================ CONFIGURATION ================ */
 
+import { socket } from './main.mjs';
+
 const cameraConstraints = {
-    audio: false,
-    video: {
-        width: 1280,
-        height: 720,
-        facingMode: 'user'
-    }
+	audio: false,
+	video: {
+		width: 1280,
+		height: 720,
+		facingMode: 'user'
+	}
 };
 
 
@@ -31,7 +33,7 @@ $canvas.style.height = $canvas.height;
 // frame rating of how much data is sent to the server
 // [10,30] recommended during development
 // 50 recommended for release
-let fps = 24;
+let fps = 1;
 
 
 
@@ -42,8 +44,8 @@ let fps = 24;
 // tells the socket to listen the 'webcamStreamTreated' event from the server
 // the callbacks handles a data (here a string, the base64 treated image)
 socket.on('webcamStreamTreated', data => {
-    //no needed as we are not retrieving the proccesed image
-   // $canvasImg.src = `${data}`;
+	//no needed as we are not retrieving the proccesed image
+	// $canvasImg.src = `${data}`;
 });
 
 
@@ -61,11 +63,11 @@ socket.on('webcamStreamTreated', data => {
  * @returns {Promise<MediaStream>}
  */
 function getMedia(constraints) {
-    try {
-        return navigator.mediaDevices.getUserMedia(constraints);
-    } catch(err) {
-        throw new Error(err);
-    }
+	try {
+		return navigator.mediaDevices.getUserMedia(constraints);
+	} catch (err) {
+		throw new Error(err);
+	}
 }
 
 /**
@@ -73,14 +75,14 @@ function getMedia(constraints) {
  * @param {MediaStream} webcam 
  */
 function processImage(webcam) {
-    // update the main video
-    $webcam.srcObject = webcam;
-    $webcam.play();
+	// update the main video
+	$webcam.srcObject = webcam;
+	$webcam.play();
 
-    // clear interval when interview ends 
-    const intervalJob = setInterval( () => {
-        socket.emit('uploadWebcamStream', { stream: takepicture() });
-    }, 1000);
+	// clear interval when interview ends 
+	setInterval(() => {
+		socket.emit('uploadWebcamStream', { stream: takepicture() });
+	}, 1000 / fps);
 }
 
 /**
@@ -90,8 +92,8 @@ function processImage(webcam) {
  * @returns {String}
  */
 function takepicture() {
-    ctx.drawImage($webcam, 0, 0, $canvas.width, $canvas.height);
-    return $canvas.toDataURL('image/jpeg'); // base64 encoded
+	ctx.drawImage($webcam, 0, 0, $canvas.width, $canvas.height);
+	return $canvas.toDataURL('image/jpeg'); // base64 encoded
 }
 
 
@@ -103,5 +105,5 @@ function takepicture() {
 
 // get webcam then process image if succeed.
 getMedia(cameraConstraints)
-    .then(processImage)
-    .catch(e => console.error("Failed to get the webcam media.", e));
+	.then(processImage)
+	.catch(e => console.error('Failed to get the webcam media.', e));

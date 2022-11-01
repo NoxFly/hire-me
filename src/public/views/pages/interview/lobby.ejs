@@ -1,6 +1,15 @@
+<%
+let lobby;
+%>
+
 <h1>Interview Lobby</h1>
 
-<!-- Candidate only -->
-<!-- Here candidate can see real-time lobbies with socket.io and click on to enter in an interview -->
+<section id="lobbies-research-container">
+	<form>
+		<label>Enter the room url :</label>
+		<input type="text" id="room-url-ipt" name="room-url" placeholder="http://localhost:3000/interview/room/1509cc4ae216b435f0e1186a1921e6035447f5b83741185485fa58f94921"/>
+		<button type="submit">Enter</button>
+	</form>
+</section>
 
-<!-- TODO : NoxFly -->
+<script src="/public/js/lobby.mjs" type="module"></script>

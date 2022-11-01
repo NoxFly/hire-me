@@ -1,32 +1,23 @@
-import { Socket } from 'socket.io';
-import server, { io } from './server';
+import dotenv from 'dotenv';
+import { loadFaceApi } from './dev/common';
+import server from './server';
+import * as socket from './socket/socket-manager';
 
-import { loadFaceApi, processFrame } from './dev/common';
+dotenv.config();
 
 process.env.BASEPATH = __dirname; // equals to ~/src
+process.env.SERVER_HOST = 'http://localhost';
 
 
-io.on('connection', (socket: Socket) => {
-	console.info('New socket connected [' + socket.id + ']');
 
-	socket.on('uploadWebcamStream', async (data: { stream: string }) => { // base64 img without the common starts
-		const currentDominantEmotionObj = await processFrame(data.stream);
-		// {
-		//   '1667207597822': {
-		//     dominantEmotion: 'neutral',
-		//     dominantEmotionPerc: 0.8099568486213684
-		//   }
-		// }
-		console.log(currentDominantEmotionObj);
-		//save in session
-		//@NoxFly
+async function run() {
+	await server.load();
 
-		// socket.emit('webcamStreamTreated', data.stream);
-	});
-});
+	socket.load();
 
-
-(async () => {
 	await loadFaceApi();
-	server.start();
-})();
+
+	await server.start();
+}
+
+run();
