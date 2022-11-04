@@ -1,3 +1,11 @@
+<%
+let showHF = true;
+
+if(typeof noHeaderFooter === 'boolean' && noHeaderFooter === true) {
+    showHF = false;
+}
+%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -13,13 +21,16 @@
     </head>
 
     <body>
+        <% if(showHF) { %>
         <%- include('components/header.ejs'); %>
+        <% } %>
 
         <main class="page-<%=page.replace(/[\s\/]+/g, '-')%>">
             <%- include(`pages/${page}.ejs`); %>
         </main>
 
+        <% if(showHF) { %>
         <%- include('components/footer.ejs'); %>
-        
+        <% } %>
     </body>
 </html>

@@ -4,22 +4,17 @@
         just a click<br>
         away</h1>
         <h4 id="app-slogan-subtitle">Interviews Made Easy</h4>
-        <a href="/interview/lobbies" class="button-fill">Candidate with an interview</a>
-
-        <a id="mobile-go-to-history" class="center" href="/interview/history">Interviews history →</a>
+<% if(role === 'recruiter') { %>
+        <a href="/interview/create" class="button-fill">Create a job interview</a>
+<% } else { %>
+        <a href="/interview/lobbies" class="button-fill">Find a job</a>
+<% } %>
+            
     </article>
 
     <article id="home-illustration">
-        <img src="/public/assets/images/happy-stream.png"/>
+        <img src="/public/assets/images/interview.png" width="500"/>
     </article>
-</section>
-
-<section>
-    <h1>DEV</h1>
-    <ul>
-        <li><a href="/stylesheet">Stylesheet</a></li>
-        <li><a href="/video">Video</a></li>
-    </ul>
 </section>
 
 <script src="/public/js/home.mjs" type="module"></script>

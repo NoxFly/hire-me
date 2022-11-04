@@ -1,34 +1,56 @@
+<%
+
+for(const job of jobs) {
+    job.createdAt = new Date(job.createdAt).toLocaleDateString();
+}
+
+%>
+
 <h1>Interview Creation</h1>
 
-<!-- Recruiter only -->
-<!-- It's here you create a new interview with maybe some options -->
-<!-- Then you click on a button to confirm -->
-<!-- It creates it on server side, then it redirects you on interview process page, which waits until a candidate appears -->
-<!-- If you're the recruiter, then you are "live spectating" as a guy behind his cameras -->
-<!-- If you're the candidate, then you can have a generated link shared by the recruiter -->
-<!-- Going on, you enter the quizz -->
 
-<!-- TODO : ML_44_i & Putra -->
+<form action="/<%=page%>" method="post">
+    <input type="text" placeholder="Job's name" name="jobName">
+    <button type="submit">Create</button>
+</form>
 
-<% if(lobby != null) { %>
+<article id="list-header">
+    <div>Name</div>
+    <div>Applicant count</div>
+    <div>Done count</div>
+    <div>Creation date</div>
+    <div></div>
+</article>
 
-<p
-	id="lobby-message"
-	class="center"
-	data-fail="Waiting for a participant to join..."
-	data-success="A candidate is present !"
-	data-state="<%=!!lobby.applicant%>"></p>
-<p id="lobby-url" class="center">
-	<span><%=lobbyUrl%></span>
-	<button>copy</button>
-</p>
-<div class="loader"></div>
-<button id="launch-interview" disabled>Launch</button>
-
-<script src="/public/js/create.mjs" type="module"></script>
-
-<% } else { %>
-
-<p class="center">You cannot create a lobby for now, either because you're an applicant that joined a room, either because you're a recruiter that is already in a room.</p>
-
+<section id="recruiter-job-pool" class="list-container">
+<% if(jobs.length === 0) { %>
+    <p>You do not have any job.</p>
 <% } %>
+<% for(let job of jobs) { %>
+    <article class="job" data-job-id="<%=job.id%>">
+        <div class="job-name">
+            <span><%=job.name%></span>
+            <span>#<%=job.id%></span>
+        </div>
+        <div class="applicant-count">
+            <span><%=job.applicants.length%> applicant<%=job.applicants.length>1?'s':''%></span>
+        </div>
+        <div class="applicant-done">
+            <span><%=job.done%></span>
+        </div>
+        <div class="job-creation">
+            <span><%=job.createdAt%></span>
+        </div>
+        <div class="action">
+<% if(job.ended) { %>
+            <span>Ended</span>
+<% } else { %>
+            <button class="end-btn">End</button>
+<% } %>
+        </div>
+    </article>
+<% } %>
+</section>
+
+
+<script src="/public/js/interview/create.mjs" type="module"></script>

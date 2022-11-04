@@ -1,15 +1,40 @@
 <%
-let lobby;
+
+for(const job of jobs) {
+    const d = new Date(job.createdAt).toLocaleDateString();
+
+    job.createdAt = d;
+}
+
 %>
 
-<h1>Interview Lobby</h1>
+<h1>Open offers</h1>
 
-<section id="lobbies-research-container">
-	<form>
-		<label>Enter the room url :</label>
-		<input type="text" id="room-url-ipt" name="room-url" placeholder="http://localhost:3000/interview/room/1509cc4ae216b435f0e1186a1921e6035447f5b83741185485fa58f94921"/>
-		<button type="submit">Enter</button>
-	</form>
+
+<section id="lobbies-research-container" class="list-container job-list">
+<% if(jobs.length === 0) { %>
+    <p>There is no offers to apply for now.</p>
+<% } %>
+<% for(let job of jobs) { %>
+    <article class="public-job" data-job-id="<%=job.id%>">
+        <div class="job-name">
+            <span><%=job.name%></span>
+            <span>#<%=job.id%></span>
+        </div>
+        <div class="applicant-count">
+            <span><%=job.applicants.length%> applicant<%=job.applicants.length>1?'s':''%></span>
+        </div>
+        <div class="job-creation">
+            <span><%=job.createdAt%></span>
+        </div>
+        <div class="action">
+            <button>
+                <a href="/interview/room/<%=job.id%>"></a>
+                apply
+            </button>
+        </div>
+    </article>
+<% } %>
 </section>
 
-<script src="/public/js/lobby.mjs" type="module"></script>
+<script src="/public/js/interview/lobby.mjs" type="module"></script>

@@ -1,32 +1,40 @@
-<h1>Interview room</h1>
+<h1><%=room.name%></h1>
+<h2 class="page-subtitle">live interview</h2>
 
-<!-- Main interview processus (quizz) -->
-<!-- If you're the recruiter, then you are "live spectating" as a guy behind his cameras -->
-<!-- If you're the candidate, then you can have a generated link shared by the recruiter -->
-<!-- /interview/room/:id -->
-<!-- Where :id is a randomly UUIDv4 generated from the server -->
-<!-- TODO : ML_44_i & Putra -->
+<% if(typeof alreadyDone === 'boolean' && alreadyDone) { %>
 
-<% if(!lobby.started) { %>
+<p>You already have done your interview for this job.</p>
 
-<section id="room-not-started" class="center">
-	<% if(role === 'recruiter') { %>
-	<p>You have to launch the interview <a href="/interview/create">here</a></p>
-	<% } else { %>
-	<p>Wait until the recruiter starts the session</p>
-	<div class="loader"></div>
-	<% } %>
-</section>
+<% } else if(room.ended) { %>
 
-
-
+<p>The interview has ended.</p>
 
 <% } else { %>
 
-<section id="room">
-	<p>The interview has started</p>
-</section>
+<div id="quizz-container">
+    <section id="left-side">
+        <h3 id="question"></h3>
+        <section id="answers-container">
+            <article id="answer-pool">
+                <p>Loading...</p>
+            </article>
+            <article id="confirm-container">
+                <button>Next question</button>
+            </article>
+        </section>
+    </section>
+    <section id="right-side">
+        <div id="timer"></div>
+        <div id="question-count">
+            <p>Question</p>
+            <p>
+                <span>0</span>
+                /
+                <span>0</span>
+            </p>
+        </div>
+    </section>
+</div>
 
+<script src="/public/js/interview/room.mjs" type="module"></script>
 <% } %>
-
-<script src="/public/js/room.mjs" type="module"></script>

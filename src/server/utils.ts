@@ -1,6 +1,7 @@
 import crypto from 'crypto';
+import { readdir } from 'fs/promises';
 
-export const generateToken = () => crypto.randomBytes(30).toString('hex');
+export const generateToken = () => crypto.randomBytes(10).toString('hex');
 
 export const parseCookie = (cookie: string) => {
 	const obj: { [key: string]: string | number | boolean } = {};
@@ -24,3 +25,11 @@ export const parseCookie = (cookie: string) => {
 
 	return obj;
 };
+
+export const getDirectories = async (src: string) => (await readdir(src, { withFileTypes: true }))
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name)
+
+export const getFiles = async (src: string) => (await readdir(src, { withFileTypes: true }))
+    .filter(f => f.isFile())
+    .map(file => file.name)
