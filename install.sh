@@ -1,5 +1,5 @@
 # install node-pre-gyp globally
-npm i node-pre-gyp -g
+npm i node-pre-gyp
 
 if [ $? -eq 0 ]; then
     # install all dependencies & build tensorflow
