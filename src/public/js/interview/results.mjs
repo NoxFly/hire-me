@@ -380,6 +380,41 @@ function removeDetails() {
 
 
 
+function showAnswers($box, data) {
+    const $ans = document.createElement('div');
+    
+    $ans.classList.add('answers');
+
+    const $title = document.createElement('h5');
+
+    $title.innerText = 'Answers';
+
+    // for(const )
+    const $ol = document.createElement('ol');
+
+    console.log(data);
+
+    for(const answer of data) {
+        const $li = document.createElement('li');
+        $li.innerText = `${answer.answers.join(', ')} (in ${Math.trunc(answer.timeElapsed / 1000)}s)`;
+        $ol.appendChild($li);
+    }
+    
+    $ans.append($title, $ol);
+
+
+    $box.appendChild($ans);
+}
+
+function hideAnswers($box) {
+    $box.querySelector('.answers')?.remove();
+}
+
+
+
+
+
+
 
 
 /**
@@ -451,13 +486,13 @@ function fillInterviewList(data) {
 
         $box.appendChild($id);
 
+        // emotions
         const spider = createCanvas(spiderSize, spiderSize);
         renderEmotionWeb(spider.ctx, r.emotions);
         spider.canvas.classList.add('spider-diagram');
 
         const spiderColor = createCanvas(spiderSize, spiderSize);
         renderEmotionWeb(spiderColor.ctx, r.emotions, true);
-
         
         const timeline = createCanvas(1000, 500);
         renderTimeline(timeline.ctx, r);
@@ -472,6 +507,17 @@ function fillInterviewList(data) {
 
         $box.addEventListener('click', () => fullScreenBox($box, appId));
 
+
+
+        // answers
+        $box.addEventListener('mouseenter', () => showAnswers($box, r.answers));
+        $box.addEventListener('mouseleave', () => hideAnswers($box));
+
+
+
+
+
+        //
         $list.appendChild($box);
     }
 

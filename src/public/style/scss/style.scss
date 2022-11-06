@@ -1049,7 +1049,7 @@ button {
             position: relative;
             cursor: pointer;
             transition-duration: .2s;
-            overflow: hidden;
+            isolation: isolate;
 
             &.full {
                 width: 1200px;
@@ -1061,6 +1061,7 @@ button {
                 z-index: 26;
                 cursor: default;
                 animation: chartAppear .4s forwards ease-out;
+                overflow: hidden;
 
                 .timeline-diagram {
                     display: block;
@@ -1075,8 +1076,25 @@ button {
                 }
             }
 
-            &:hover {
-                box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+            &:not(.full) {
+                &:hover {
+                    box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+                }
+
+                .answers {
+                    position: absolute;
+                    top: 0;
+                    left: calc(100% - 6px);
+                    width: 300px;
+                    height: 100%;
+                    background: var(--primary-color-tint);
+                    border-radius: 0 6px 6px 0;
+                    animation: answersAppear .2s forwards linear;
+                    cursor: default;
+                    z-index: -1;
+                    overflow: hidden;
+                    color: var(--primary-color-contrast);
+                }
             }
 
             .applicant-id {
@@ -1169,6 +1187,11 @@ button {
 @keyframes chartAppear {
     from { opacity: 0; width: 400px; height: 400px; transform: translate(-50%, -50%) scale(0); }
     to { opacity: 1; width: 1200px; height: 600px; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes answersAppear {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @media print {
