@@ -8,11 +8,18 @@ const $footer = document.getElementById('main-footer');
 const $header = document.getElementById('main-header');
 const $main = document.querySelector('main');
 
+export function updateFooterPosition() {
+    if ($footer && $header && $main) {
+        const bottom = window.innerHeight - (window.scrollY + $main.getBoundingClientRect().top + $main.offsetHeight);
+        const limit = $footer.clientHeight;
 
-if ($footer && $header && $main) {
-	if ($main.clientHeight + $header.clientHeight <= window.innerHeight) {
-		$footer.classList.add('absolute-footer');
-	}   
+        if(bottom > limit) {
+            $footer.classList.add('absolute-footer');
+        }
+        else {
+            $footer.classList.remove('absolute-footer');
+        }
+    }
 }
 
 socket.on('interviewStart', href => {
@@ -35,3 +42,5 @@ socket.on('roomClosed', id => {
         }
     })
 });
+
+updateFooterPosition();

@@ -1,3 +1,5 @@
+import { msToTime } from '../utils.mjs';
+
 const $timer = document.querySelector('#timer');
 const $cvsTimer = document.createElement('canvas');
 const timerCtx = $cvsTimer.getContext('2d');
@@ -19,20 +21,6 @@ let percentageElapsed = 0;
 let qStartTime = Date.now();
 
 let arc;
-
-function msToTime(s) {
-    let ms = s % 1000;
-    s = (s - ms) / 1000;
-    let secs = s % 60;
-    s = (s - secs) / 60;
-    let mins = s % 60;
-    // var hrs = (s - mins) / 60;
-
-    mins = ('0' + mins).slice(-2);
-    secs = ('0' + secs).slice(-2);
-
-    return mins + ':' + secs;
-}
 
 
 function moveCircle() {

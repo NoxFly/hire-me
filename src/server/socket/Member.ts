@@ -85,6 +85,7 @@ export class Member {
 
         if(this.role === 'recruiter') {
             this.socket.on('closeRoom', (id: string) => this.endRoom(id));
+            this.socket.on('interviewResultReq', (id: string) => this.giveInterviewResults(id));
         }
 
 		return this;
@@ -213,10 +214,10 @@ export class Member {
      * from APPLICANT
      * @param buffer The applicant's stream buffer
      */
-    private async receiveLiveStreamBuffer(buffer: string): Promise<void> {
+    private async receiveLiveStreamBuffer(buffer: { time: number, stream: string }): Promise<void> {
         if(this.isInRoom()) {
-            const emotions = await processFrame(buffer);
-            rooms.get(this.room)?.applicant(this.token).addEmotionData(Date.now(), emotions);
+            const emotions = await processFrame(buffer.stream);
+            rooms.get(this.room)?.applicant(this.token).addEmotionData(buffer.time, emotions);
         }
     }
 
@@ -226,6 +227,8 @@ export class Member {
 
         // end of quizz
         if(data.index === dummyQuestions.length - 1) {
+            rooms.get(this.room)?.applicant(this.token).setEndTime(data.time);
+
             applications.ensure(this.token, []);
 
             if(!!this.room && !applications.get(this.token).includes(this.room)) {
@@ -237,14 +240,27 @@ export class Member {
     }
 
     private enableRoomListeners(): void {
-        this.socket.on('liveStreamBuffer', (buffer: { stream: string }) => this.receiveLiveStreamBuffer(buffer.stream));
+        this.socket.on('liveStreamBuffer', (buffer: { time: number, stream: string }) => this.receiveLiveStreamBuffer(buffer));
         this.socket.on('getRoomQuestion', (qidx: number) => this.socket.emit('quizzQuestionForm', dummyQuestions[qidx]));
         this.socket.on('submitQuizz', (data: QuizzAnswer) => this.treatAnswer(data));
+        this.socket.on('quizzStartTime', (startTime: number) => rooms.get(this.room)?.applicant(this.token).setStartTime(startTime));
     }
 
     private disableRoomListeners(): void {
         this.socket.off('liveStreamBuffer', () => {});
         this.socket.on('initQuizz', () => {});
         this.socket.off('submitQuizz', () => {});
+    }
+
+    private async giveInterviewResults(roomId: string): Promise<void> {
+        try {
+            const filepath = process.env.BASEPATH + '/data/interviews/' + this.token + '/' + roomId;
+            const data = await Room.loadFromFile(filepath);
+
+            this.socket.emit('interviewResultRes', data);
+        }
+        catch(e) {
+            console.error('Failed to load room history #' + roomId + ' :', e);
+        }
     }
 }

@@ -1,3 +1,4 @@
+import { updateFooterPosition } from '../main.mjs';
 import { socket } from '../socket.mjs';
 
 socket.on('jobCreated', job => {
@@ -58,4 +59,8 @@ socket.on('jobCreated', job => {
     }
 
     $container?.appendChild($art);
+
+    updateFooterPosition();
 });
+
+updateFooterPosition();

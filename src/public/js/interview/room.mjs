@@ -70,7 +70,7 @@ function takepicture() {
  */
 async function sendCamera() {
     const buffer = takepicture();
-    socket.emit('liveStreamBuffer', { stream: buffer });
+    socket.emit('liveStreamBuffer', { time: Date.now(), stream: buffer });
 
     setTimeout(() => running && sendCamera(), 1000 / fps);
 }
@@ -94,9 +94,9 @@ async function run() {
 
             document.body.querySelector('main')?.appendChild($webcam);
 
+            sendCamera();
             askForNextQuestion();
 
-            sendCamera();
         }
     }
     catch(e) {
@@ -124,6 +124,7 @@ function submitQuestion(giveUp=false) {
         index: questionIndex,
         answers,
         from: qStartTime,
+        time: Date.now(),
         timeElapsed: timer.timeElapsed
     });
 
@@ -143,8 +144,12 @@ function submitQuestion(giveUp=false) {
 socket.on('quizzQuestionForm', form => {
     questionIndex = form.index;
     totalQuestionCount = form.count;
-    running = form.index < form.count - 1;
+    running = form.index < form.count;
     qStartTime = Date.now();
+
+    if(form.index === 0) {
+        socket.emit('quizzStartTime', qStartTime);
+    }
     
     if($question) {
         $question.innerText = form.question;

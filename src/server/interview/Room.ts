@@ -1,5 +1,4 @@
 import * as fs from 'fs/promises';
-import { inspect } from 'util';
 import { jobs } from '~/server/socket/database';
 import { EmotionMap, Emotion } from './Emotion';
 
@@ -18,6 +17,7 @@ export interface QuizzAnswer {
     index: number,
     answers: string[],
     from: number,
+    time: number,
     timeElapsed: number
 }
 
@@ -31,6 +31,8 @@ export interface RoomData {
     date: number,
     participants: {
         [key: string]: {
+            start: number,
+            end: number,
             emotions: Timeline,
             answers: QuizzAnswer[]
         }
@@ -41,6 +43,8 @@ export interface RoomData {
 export class ApplicantRoomData {
     private timeline: Timeline = {};
     private answers: QuizzAnswer[] = [];
+    private start: number = Date.now();
+    private end: number = Date.now();
 
     constructor() {}
 
@@ -54,6 +58,22 @@ export class ApplicantRoomData {
 
     addAnswerData(data: QuizzAnswer): void {
         this.answers.push(data);
+    }
+
+    setStartTime(time: number): void {
+        this.start = time;
+    }
+
+    setEndTime(time: number): void {
+        this.end = time;
+    }
+
+    getStartTime(): number {
+        return this.start;
+    }
+
+    getEndTime(): number {
+        return this.end;
     }
 
     addEmotionData(timestamp: number, data: EmotionMap): void {
@@ -103,9 +123,13 @@ export class Room {
         };
 
         for(const applId in this.applicants) {
+            const app = this.applicants[applId];
+
             data.participants[applId] = {
-                emotions: this.applicants[applId].getTimeline(),
-                answers: this.applicants[applId].getAnswers()
+                start: app.getStartTime(),
+                end: app.getEndTime(),
+                emotions: app.getTimeline(),
+                answers: app.getAnswers()
             };
         }
 

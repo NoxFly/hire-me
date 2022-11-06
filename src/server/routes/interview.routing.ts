@@ -58,8 +58,11 @@ router.get('/history/:id', async (req, res, next) => {
 
         try {
             if(existsSync(filepath)) {
-                const data = await Room.loadFromFile(filepath);
-                return loadTemplate(req, res, 'interview/results', { data });
+                // does not load the data here.
+                // just render the page, which will ask with the socket to retrieve the data.
+                // so it can be treat by javascript : canvas
+                // const data = await Room.loadFromFile(filepath);
+                return loadTemplate(req, res, 'interview/results');
             }
 
             throw new Error();
@@ -140,7 +143,7 @@ router.get('/room/:id', (req, res, next) => {
 
     // already done : do not do again
     if(applications.get(member.token)?.includes(room.id)) {
-        loadTemplate(req, res, 'interview/room', { alreadyDone: true });
+        return loadTemplate(req, res, 'interview/room', { alreadyDone: true });
     }
 
 	loadTemplate(req, res, 'interview/room', { room });

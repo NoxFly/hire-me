@@ -1,3 +1,4 @@
+import { updateFooterPosition } from '../main.mjs';
 import { socket } from '../socket.mjs';
 
 document.querySelectorAll('.end-btn').forEach($btn => {
@@ -36,3 +37,5 @@ function incRoomParticipation(roomId) {
 socket.on('memberJoin', (roomId) => updateParticipants(roomId, 1));
 socket.on('memberLeft', (roomId) => updateParticipants(roomId, -1));
 socket.on('applicationDone', (roomId) => incRoomParticipation(roomId));
+
+updateFooterPosition();

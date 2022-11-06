@@ -866,7 +866,8 @@ button {
 
     width: 800px;
     max-width: 98vw;
-    margin: 50px auto;
+    margin: 0 auto;
+    padding: 20px 0 100px 0;
 
     > p {
         margin-top: 100px;
@@ -967,6 +968,141 @@ button {
     h1 {
         margin-bottom: 0;
     }
+
+    section {
+        margin-inline: var(--page-inline-padding);
+    }
+
+    #interview-end-date {
+        text-align: right;
+        font-family: 'Heebo';
+        color: var(--color-soft-tint);
+    }
+
+    #hover {
+        position: fixed;
+        z-index: 25;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:rgba(0, 0, 0, 0.5);
+    }
+
+    #date {
+        margin-top: 50px;
+
+        p {
+            margin: 0;
+        }
+    }
+
+    .legend {
+        margin: 0;
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        ul {
+            @include flex($display: inline-flex);
+
+            list-style-type: none;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+
+            li {
+                @include flex;
+
+                margin: 0 40px 0 0;
+
+                .color-square {
+                    --size: 15px;
+
+                    width: var(--size);
+                    height: var(--size);
+                    border: 1px solid rgba(0, 0, 0, .2);
+                    margin-right: 10px;
+                    display: inline-block;
+                    background: var(--color, rgba(0, 0, 0, 0.5));
+                }
+
+                .color-name {
+                    font-size: .8em;
+                    color: var(--color-soft);
+                }
+            }
+        }
+    }
+
+    #results-list {
+        @include flex($wrap: wrap, $align-items: flex-start);
+
+        margin: 50px auto 150px auto;
+
+        .participant-diag {
+            width: 400px;
+            height: 400px;
+            background: var(--background-color-tint);
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            transition-duration: .2s;
+            overflow: hidden;
+
+            &.full {
+                width: 1200px;
+                height: 600px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 26;
+                cursor: default;
+                animation: chartAppear .4s forwards ease-out;
+
+                .timeline-diagram {
+                    display: block;
+                    width: 100%;
+                }
+
+                .spider-diagram {
+                    position: absolute;
+                    top: 20px;
+                    right: 20px;
+                    width: 200px;
+                }
+            }
+
+            &:hover {
+                box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+            }
+
+            .applicant-id {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                text-align: right;
+                font-weight: normal;
+                color: var(--color-soft-tint);
+                margin: 0;
+                padding: 0;
+                font-family: 'Open Sans';
+                font-size: .6em;
+            }
+
+            .spider-diagram {
+                width: 100%;
+                aspect-ratio: 1;
+            }
+
+            .timeline-diagram {
+                display: none;
+                aspect-ratio: 2;
+            }
+        }
+    }
 }
 
 
@@ -1024,6 +1160,45 @@ button {
                     top: 40%;
                     right: 0;
                     transform: scale(.7);
+                }
+            }
+        }
+    }
+}
+
+@keyframes chartAppear {
+    from { opacity: 0; width: 400px; height: 400px; transform: translate(-50%, -50%) scale(0); }
+    to { opacity: 1; width: 1200px; height: 600px; transform: translate(-50%, -50%) scale(1); }
+}
+
+@media print {
+    @page {
+        margin: 0;
+        padding: 0;
+    }
+
+    html, body {
+        box-sizing: border-box;
+    }
+
+    header, footer {
+        display: none;
+    }
+
+    .page-interview-results {
+        #hover {
+            background: var(--background-color-tint) !important;
+        }
+
+        #results-list {
+            .participant-diag {
+                width: 200px !important;
+                height: 200px !important;
+
+                &.full {
+                    width: 100% !important;
+                    height: 100% !important;
+                    transform: translate(-50%, -50%) rotate(90deg) !important;
                 }
             }
         }
