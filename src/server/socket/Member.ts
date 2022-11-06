@@ -1,46 +1,36 @@
 import { Socket } from 'socket.io';
-import { connections, lobbies } from './database';
+import { jobs, Job, MemberRole, applications, connections } from './database';
 import { generateToken } from '~/server/utils';
-import { io } from './socket-manager';
+import { io, rooms } from './socket-manager';
+import { processFrame } from '~/server/interview/faceDetection';
+import { dummyQuestions, QuizzAnswer, Room } from '~/server/interview/Room';
 
-type MemberRole = 'recruiter' | 'applicant' | 'none';
 
-interface Lobby {
-	id: string,
-	createdAt: number,
-	started: boolean,
-	recruiter: string,
-	applicant: string
-}
-
+/**
+ * A member can have 1 role between 'Applicant' and 'Recruiter'.
+ * A Recruiter can makes a much as interviews he wants.
+ * An applicant can only apply to 1 interview at a time.
+ * 
+ * ==> Member.rooms.length = 0..1 if applicant
+ *     Member.rooms.length = 0..* if recruiter
+ */
 export class Member {
-	private _role: MemberRole = 'none';
-	private lobbyId: string | undefined;
-	private inRoom = false;
+	private room: string = '';
 	private connState = true;
 	private url: string;
 
-	constructor(private sock: Socket, private readonly _token: string) {
-		this.updateInDb(this.token);
+	constructor(
+        private readonly _token: string,
+        private readonly _role: MemberRole,
+        private sock: Socket
+    ) {
+        const fltFn: (p: Job) => boolean = (this.role === 'recruiter')
+            ? p => p.recruiter === this.token
+            : p => p.applicants.includes(this.token);
 
-		const lobby: Lobby[] = lobbies
+		this.room = jobs
 			.array()
-			.filter(p => p.recruiter === this.token || p.applicant === this.token)
-			.sort((a, b) => a.createdAt <= b.createdAt ? 1 : -1);
-
-		// delete possible multiple lobbies as recruiter, from the oldest to newest, keeping the newer
-		for(let i=1; i < lobby.length; i++) {
-			if(lobby[i].recruiter === this.token) {
-				lobbies.delete(lobby[i].id);
-			}
-		}
-
-		// re-assigne the newer if it exists
-		if(lobby.length > 0) {
-			this.lobbyId = lobby[0].id;
-			this.role = (lobby[0].recruiter === this.token)? 'recruiter' : 'applicant';
-			this.inRoom = lobby[0].started;
-		}
+			.find(fltFn)?.id || '';
 	}
 
 	get socket(): typeof this.sock {
@@ -51,156 +41,226 @@ export class Member {
 		return this._token;
 	}
 
-	setUrl(url: typeof this.url) {
-		this.url = url;
-
-		// force the role in case he refreshed or changed the page
-		if(this.lobbyId && !/^\/interview\/(create|room)(\/\w+)?/.test(this.url)) {
-			if(lobbies.get(this.lobbyId)?.recruiter === this.token) {
-				this.role = 'recruiter';
-				this.quitLobby();
-			}
-			else if(lobbies.get(this.lobbyId)?.applicant === this.token) {
-				this.role = 'applicant';
-				this.quitLobby();
-			}
-		}
-	}
-
-	async setSocket(sock: typeof this.sock, token: string): Promise<void> {
-		this.sock = sock;
-		this.connState = true;
-		this.updateInDb(token);
-		this.initSocketListener();
-
-		if(this.lobbyId) {
-			if(!this.socket.rooms.has(this.lobbyId)) {
-				await this.socket.join(this.lobbyId);
-			}
-		}
-	}
-
-	get role() {
+    get role() {
 		return this._role;
 	}
 
-	set role(r: typeof this._role) {
-		this._role = r;
+	setUrl(url: typeof this.url) {
+		this.url = url;
 	}
 
-	private updateInDb(token: string): void {
-		connections.set(token, this.socket.id, 'id');
+	async setSocket(sock: typeof this.sock): Promise<void> {
+        // enable all listeners on new socket
+		this.sock = sock;
+		this.connState = true;
+		this.initSocketListener();
+
+		if(this.isInRoom()) {
+            this.enableRoomListeners();
+		}
 	}
 
 	private initSocketListener(): typeof this {
 		this.socket.on('disconnecting', () => {
 			this.connState = false;
 
+            // disable all listeners on previous socket
+            if(this.role === 'recruiter') {
+                this.socket.off('launchInterview', () => {});
+            }
+            else {
+                // this.socket.off('searchRoom', () => {});
+                if(this.room.length > 0) {
+                    this.disableRoomListeners();
+                }
+            }
+
 			setTimeout(() => {
 				if(this.connState)
 					return;
 
-				this.quitLobby();
+				this.quitRoom();
 			}, 2000);
 		});
 
-		this.socket.on('searchRoom', (roomUrl: string) => {
-			const id = roomUrl.slice(roomUrl.lastIndexOf('/')+1);
-			this.socket.emit('searchRoomResult', lobbies.has(id));
-		});
-
-		this.socket.on('launchInterview', () => {
-			this.inRoom = true;
-			lobbies.set(this.lobbyId as string, true, 'started');
-			io.in(this.lobbyId as string).emit('interviewStart', this.getLobbyUrl());
-		});
+        if(this.role === 'recruiter') {
+            this.socket.on('closeRoom', (id: string) => this.endRoom(id));
+            this.socket.on('interviewResultReq', (id: string) => this.giveInterviewResults(id));
+        }
 
 		return this;
 	}
 
-	getLobby(): Lobby | undefined {
-		if(this.lobbyId) {
-			return lobbies.get(this.lobbyId);
-		}
-
-		return undefined;
+    /**
+     * APPLICANT only
+     */
+	getRoomUrl() {
+		return this.room
+            ? `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/interview/room/${this.room}`
+            : undefined;
 	}
 
-	getLobbyUrl() {
-		return `${process.env.SERVER_HOST}:${process.env.SERVER_PORT}/interview/room/${this.lobbyId}`;
+	isInRoom(): boolean {
+		return !!this.room;
 	}
 
-	isInRoom(): typeof this.inRoom {
-		return this.inRoom;
+    /**
+     * RECRUITER only
+     */
+	async createRoom(jobName: string): Promise<void> {
+        const token = generateToken();
+
+        try {
+            const job: Job = {
+                id: token,
+                createdAt: Date.now(),
+                ended: false,
+                name: jobName,
+                recruiter: this.token,
+                applicants: []
+            };
+
+            jobs.set(token, job);
+            rooms.set(token, new Room(token));
+            io.emit('jobCreated', job);
+        }
+        catch(e) {
+            console.error('Failed to create a job : ', e);
+        }
 	}
 
-	async createLobby(): Promise<void> {
-		if(!this.lobbyId) {
-			this.role = 'recruiter';
+    async endRoom(roomId: string): Promise<void> {
+        if(jobs.has(roomId) && !jobs.get(roomId).ended) {
+            jobs.set(roomId, true, 'ended');
 
-			const token = generateToken();
+            if(rooms.has(roomId)) {
+                try {
+                    await rooms.get(roomId)?.save(process.env.BASEPATH + '/data/interviews');
+                }
+                catch(e) {}
+            }
 
-			this.lobbyId = token;
+            io.emit('roomClosed', roomId);
+        }
+    }
 
-			try {
-				lobbies.set(this.lobbyId, {
-					id: this.lobbyId,
-					createdAt: Date.now(),
-					started: false,
-					[this.role]: this.token
-				});
+    /**
+     * APPLICANT only
+     * the room MUST exist
+     * @param id The room's id
+     */
+	async joinRoom(id: string): Promise<void> {
+		if(id !== this.room) {
+            this.quitRoom();
+        }
 
-				await this.socket.join(this.lobbyId);
-				this.socket.data.interview = this.lobbyId;
-			}
-			catch(e) {
-				console.error('Failed to join a room as recruiter : ', e);
-			}
-		}
+		this.room = id;
+
+        const { applicants, recruiter } = jobs.get(id);
+
+        if(!applicants.includes(this.token)) {
+            try {
+                jobs.push(id, this.token, 'applicants');
+                io.to(connections.get(recruiter)?.id).emit('memberJoin', id, this.token);
+
+                this.enableRoomListeners();
+            }
+            catch(e) {
+                console.error('Failed to join a room as participant : ', e);
+                this.room = '';
+            }
+        }
 	}
 
-	async joinLobby(id: string): Promise<void> {
-		if(this.lobbyId) {
-			this.quitLobby();
-		}
-
-		this.role = 'applicant';
-		this.lobbyId = id;
-		this.inRoom = true;
-
-		try {
-			lobbies.set(this.lobbyId, this.token, this.role);
-
-			await this.socket.join('room');
-			this.socket.to(this.lobbyId).emit('memberJoin', this.token);
-			this.socket.data.interview = this.lobbyId;
-		}
-		catch(e) {
-			console.error('Failed to join a room as participant : ', e);
-		}
-	}
-
-	quitLobby(): void {
-		if(this.lobbyId && this.role !== 'none') {
+    /**
+     * APPLICANT only
+     * Called when an applicant finally does not want to apply to a job,
+     * or when he has finished its interview.
+     */
+	async quitRoom(): Promise<void> {
+		if(this.isInRoom()) {
 			try {
 				// ensure it still exists
 				// for example, in case the recruiter left first
-				// then the lobby is destroyed : if the applicant then left
+				// then the room is destroyed : if the applicant then left
 				// it cannot delete what is already deleted.
-				if(lobbies.has(this.lobbyId)) {
-					lobbies.delete(this.lobbyId, (this.role === 'recruiter')? undefined : this.role);
+				if(jobs.has(this.room)) {
+                    const { recruiter } = jobs.get(this.room);
+
+                    const done = applications.has(this.token);
+                    const event = done? 'applicationDone' : 'memberLeft';
+
+                    if(!done) {
+					    jobs.remove(this.room, this.token, 'applicants');
+                    }
+
+                    io.to(connections.get(recruiter)?.id).emit(event, this.room, this.token);
 				}
 
-				this.socket.to(this.lobbyId).emit('memberQuit', { role: this.role });
 
-				this.role = 'none';
-				this.lobbyId = undefined;
-				this.inRoom = false;
-				this.socket.data.interview = undefined;
+				this.room = '';
+
+                if(this.role === 'applicant') {
+                    this.disableRoomListeners();
+                }
 			}
 			catch(e) {
 				console.error('Failed to quit a room : ', e);
 			}
 		}
 	}
+
+    /**
+     * from APPLICANT
+     * @param buffer The applicant's stream buffer
+     */
+    private async receiveLiveStreamBuffer(buffer: { time: number, stream: string }): Promise<void> {
+        if(this.isInRoom()) {
+            const emotions = await processFrame(buffer.stream);
+            rooms.get(this.room)?.applicant(this.token).addEmotionData(buffer.time, emotions);
+        }
+    }
+
+    private async treatAnswer(data: QuizzAnswer): Promise<void> {
+        // collect data
+        rooms.get(this.room)?.applicant(this.token).addAnswerData(data);
+
+        // end of quizz
+        if(data.index === dummyQuestions.length - 1) {
+            rooms.get(this.room)?.applicant(this.token).setEndTime(data.time);
+
+            applications.ensure(this.token, []);
+
+            if(!!this.room && !applications.get(this.token).includes(this.room)) {
+                applications.push(this.token, this.room);
+            }
+
+            this.quitRoom();
+        }
+    }
+
+    private enableRoomListeners(): void {
+        this.socket.on('liveStreamBuffer', (buffer: { time: number, stream: string }) => this.receiveLiveStreamBuffer(buffer));
+        this.socket.on('getRoomQuestion', (qidx: number) => this.socket.emit('quizzQuestionForm', dummyQuestions[qidx]));
+        this.socket.on('submitQuizz', (data: QuizzAnswer) => this.treatAnswer(data));
+        this.socket.on('quizzStartTime', (startTime: number) => rooms.get(this.room)?.applicant(this.token).setStartTime(startTime));
+    }
+
+    private disableRoomListeners(): void {
+        this.socket.off('liveStreamBuffer', () => {});
+        this.socket.on('initQuizz', () => {});
+        this.socket.off('submitQuizz', () => {});
+    }
+
+    private async giveInterviewResults(roomId: string): Promise<void> {
+        try {
+            const filepath = process.env.BASEPATH + '/data/interviews/' + this.token + '/' + roomId;
+            const data = await Room.loadFromFile(filepath);
+
+            this.socket.emit('interviewResultRes', data);
+        }
+        catch(e) {
+            console.error('Failed to load room history #' + roomId + ' :', e);
+        }
+    }
 }

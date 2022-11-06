@@ -1,4 +1,33 @@
 <h1>Interviews history</h1>
 
-<!-- Recruiter only -->
-<!-- TODO : NoxFly -->
+<%
+
+for(const job of history) {
+    job.date = new Date(job.date).toLocaleDateString();
+}
+
+%>
+
+
+<section id="history-pool" class="list-container">
+<% if(history.length === 0) { %>
+    <p>You do not have any job interview's history yet.</p>
+<% } else { %>
+<% for(const job of history) { %>
+    <article class="list-container" data-job-id="<%=job.id%>">
+        <a href="/interview/history/<%=job.id%>"></a>
+        <div class="job-name">
+            <span><%=job.name%></span>
+            <span>#<%=job.id%></span>
+        </div>
+        <div class="participant-count">
+            <span><%=job.participantCount%> applicant<%=job.participantCount>1?'s':''%></span>
+        </div>
+        <div class="job-creation">
+            <span><%=job.date%></span>
+        </div>
+    </article>
+<% } %>
+</section>
+
+<% } %>

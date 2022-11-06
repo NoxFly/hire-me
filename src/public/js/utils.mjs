@@ -10,3 +10,17 @@
 export const random = (iMin = null, iMax = 0) => iMin === null
 	? Math.random()
 	: Math.floor(Math.random() * (Math.max(iMin, iMax) - Math.min(iMin, iMax) + 1)) + Math.min(iMin, iMax);
+
+export function msToTime(s) {
+    let ms = s % 1000;
+    s = (s - ms) / 1000;
+    let secs = s % 60;
+    s = (s - secs) / 60;
+    let mins = s % 60;
+    // var hrs = (s - mins) / 60;
+
+    mins = ('0' + mins).slice(-2);
+    secs = ('0' + secs).slice(-2);
+
+    return mins + ':' + secs;
+}

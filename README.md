@@ -14,8 +14,8 @@ Typescript on server-side, module javascript on client-side.
 
 
 ```sh
-# make sure you're up-to-date with dependencies
-npm i
+# use this script to install and configure dependencies
+./install.sh
 # run the server
 npm run dev
 # http://localhost:3000

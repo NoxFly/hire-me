@@ -1,9 +1,9 @@
 import { Socket, Server } from 'socket.io';
-import { processFrame } from '~/server/dev/common';
-import { connections } from '~/server/socket/database';
+import { connections, jobs, Job, MemberRole, roles } from '~/server/socket/database';
 import { Member } from '~/server/socket/Member';
 import { server } from '~/server/server';
 import { generateToken, parseCookie } from '~/server/utils';
+import { Room } from '~/server/interview/Room';
 
 
 
@@ -11,15 +11,35 @@ let hasLoaded = false;
 const cookieMaxAge = 43200; // seconds. Means it's 12h
 
 export const members: Map<string, Member> = new Map();
+export const rooms: Map<string, Room> = new Map();
 export const tokenKey = 'HM-AuthToken';
 
 // socket.io
 export let io: Server;
 
+function userSessionExpired(time: number) {
+    return Date.now() - time >= cookieMaxAge * 1000;
+}
+
 
 function removeUnusedConnections() {
 	// remove connections that are pasted (limit is the client-side cookie max age)
-	connections.sweep((val: any) => Date.now() - val.createdAt >= cookieMaxAge * 1000);
+	connections.sweep((val: any, key: string | number) => {
+        const d = userSessionExpired(val.createdAt);
+
+        if(d) {
+            roles.delete(key);
+        }
+
+        return d;
+    });
+}
+
+function removeFinishedInterviews() {
+    jobs.sweep((val: Job) => val.ended
+        || !connections.has(val.recruiter)
+        || userSessionExpired(connections.get(val.recruiter).createdAt)
+    );
 }
 
 
@@ -27,33 +47,32 @@ function authenticateSocket(socket: Socket) {
 	const cookie = parseCookie(socket.handshake.headers.cookie ?? '');
 	const authCookie = cookie[tokenKey] as string || '';
 
-	if (authCookie && connections.has(authCookie)) {
-		if(members.has(authCookie))
-			members.get(authCookie)?.setSocket(socket, authCookie);
-		else
-			members.set(authCookie, new Member(socket, authCookie));
+	if(authCookie && connections.has(authCookie)) {
+		if(members.has(authCookie)) {
+            connections.set(authCookie, socket.id, 'id');
+            members.get(authCookie)?.setSocket(socket);
+        }
+		else {
+			members.set(authCookie, new Member(authCookie, roles.get(authCookie), socket));
+        }
 	}
 	else {
-		// cookie expired on server side but wasn't cleared on client side
-		if(connections.has(authCookie))
-			connections.delete(authCookie);
+        // should end interviews that overflowed here
+        // ...
 
-		const token = generateToken();
+        socket.on('register', (type: number) => {
+            socket.off('register', () => {});
 
-		connections.set(token, { createdAt: Date.now() });
-		members.set(token, new Member(socket, token));
+            const role: MemberRole = (type === 0)? 'recruiter': 'applicant';
+            const token = generateToken();
 
-		socket.emit('authenticate', { tokenKey, token, cookieMaxAge });
+            connections.set(token, { createdAt: Date.now(), id: socket.id });
+            roles.set(token, role);
+            members.set(token, new Member(token, role, socket));
+
+            socket.emit('authenticate', { tokenKey, token, cookieMaxAge });
+        });
 	}
-}
-
-
-function initSocketDevListeners(socket: Socket) {
-	socket.on('uploadWebcamStream', (data: { stream: string }) => { // base64 img
-		const treatedImage = data.stream; // TODO : treat image with tenserflow
-
-		socket.emit('webcamStreamTreated', treatedImage);
-	});
 }
 
 
@@ -66,28 +85,14 @@ export function load() {
 	hasLoaded = true;
 
 	removeUnusedConnections();
+    removeFinishedInterviews();
+
+    // recreate on-stack memory rooms
+    jobs.array().forEach((j: Job) => {
+        rooms.set(j.id, new Room(j.id));
+    });
 
 	io = new Server(server);
 
-	io.on('connection', (socket: Socket) => {
-		authenticateSocket(socket);
-		initSocketDevListeners(socket);
-
-
-		// dev
-		socket.on('uploadWebcamStream', async (data: { stream: string }) => { // base64 img without the common starts
-			const currentDominantEmotionObj = await processFrame(data.stream);
-			// {
-			//   '1667207597822': {
-			//     dominantEmotion: 'neutral',
-			//     dominantEmotionPerc: 0.8099568486213684
-			//   }
-			// }
-			console.log(currentDominantEmotionObj);
-			// save in session
-			// @NoxFly
-	
-			// socket.emit('webcamStreamTreated', data.stream);
-		});
-	});
+	io.on('connection', authenticateSocket);
 }

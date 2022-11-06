@@ -3,6 +3,8 @@ import http from 'http';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { router } from './routes/router';
+import multer from 'multer';
+
 
 
 export let server: http.Server;
@@ -24,7 +26,9 @@ function load() {
 
 	app.use(cors());
 	app.use(cookieParser());
+	app.use(multer().array('~~/data/upload/'));
 	app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
 
 	app.use('/public', express.static('src/public'));
 	app.use('/io', express.static('node_modules/socket.io-client/dist'));

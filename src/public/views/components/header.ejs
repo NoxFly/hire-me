@@ -1,3 +1,13 @@
+<%
+
+let applyUrl = '#';
+
+if(typeof roomUrl !== 'undefined') {
+    applyUrl = roomUrl;
+}
+
+%>
+
 <header id="main-header">
     <nav>
         <span id="nav-app-title"><a href="/">HireMe</a></span>
@@ -5,9 +15,17 @@
             <li><a href="/">Home</a></li>
             <li><a href="/about">About us</a></li>
             <li><a href="/contact">Contact</a></li>
+<% if(role === 'recruiter') { %>
             <li><a href="/interview/history">Interviews history</a></li>
+<% } else { %>
+            <li><a href="<%=applyUrl%>">My application</a></li>
+<% } %>
         </ul>
 
+<% if(role === 'recruiter') { %>
         <a id="demo-link" class="button-fill" href="/interview/create">Start an interview</a>
+<% } else { %>
+        <a id="demo-link" class="button-fill" href="/interview/lobbies">Apply to a job</a>
+<% } %>
     </nav>
 </header>
