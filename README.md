@@ -21,7 +21,21 @@ npm run dev
 # http://localhost:3000
 ```
 
-## CSS
+## About libraries
+
+There's no graphic libraries : no bootstrap, no chart.js etc...<br>
+We just used Express for the server routing, socket.io for the live stream recorder, and tensorflow for the face emotion's recognition.<br>
+Everything else is hand-made, from scratch, even graphs for job's results !
+
+
+## DEV
+
+### TS/JS
+
+- Typescript on server-side
+- Javascript on client side
+
+### CSS
 
 **Do not write on .css files !!!**<br>
 Only modify *.scss*, and use the [Live Sass](https://marketplace.visualstudio.com/items?itemName=glenn2223.live-sass) extension to compile it from VSC.<br>
