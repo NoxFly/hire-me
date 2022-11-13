@@ -1,3 +1,5 @@
+<% if(typeof room !== 'undefined') { %>
+
 <h1><%=room.name%></h1>
 <h2 class="page-subtitle">live interview</h2>
 
@@ -37,4 +39,6 @@
 </div>
 
 <script src="/public/js/interview/room.mjs" type="module"></script>
+<% } %>
+
 <% } %>
